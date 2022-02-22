@@ -5,7 +5,7 @@ const ejs = require('ejs')
 const fs = require('fs')
 const path = require('path')
 const logs = []
-
+const { autoGame } = require('./autoGame')
 // 请求配置
 axios.defaults.baseURL = config.baseUrl
 axios.defaults.headers['cookie'] = process.env.COOKIE
@@ -163,6 +163,7 @@ const checkIn = async () => {
     } else {
       console.log('今日已经签到 ✅')
     }
+    autoGame()
 
   } catch (error) {
     console.error(`签到失败!=======> ${error}`)

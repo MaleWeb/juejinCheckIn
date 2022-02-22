@@ -23,6 +23,7 @@
 - `EMAIL:` 邮箱账号
 - `PASS:` 邮箱对应的授权码
 - `SERVICE:` 邮箱服务  默认为`163`邮箱  如果是qq邮箱  这一项填入`QQ`就可以  也可以查看`nodEmail`[邮箱支持服务](https://nodemailer.com/smtp/well-known/)来填写 （目前只测试过163和QQ邮箱）
+- `UID:` 自动玩游戏需要此参数，在掘金首页打开控制台输入这行代码`window.__NUXT__.state.auth.user.id`就可以得到
 
 
 
