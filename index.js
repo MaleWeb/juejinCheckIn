@@ -6,6 +6,12 @@ const fs = require('fs')
 const path = require('path')
 const logs = []
 const { autoGame } = require('./autoGame')
+
+//定义钉钉PUSH
+const DINGTALK_PUSH_URL = config.push.DINGTALK_URL + config.push.DING_TALK_TOKEN
+const HEADERS_DINGTALK_WEB_HOOK = {
+  "Content-Type": "application/json",
+};
 // 请求配置
 axios.defaults.baseURL = config.baseUrl
 axios.defaults.headers['cookie'] = process.env.COOKIE
@@ -156,12 +162,15 @@ const checkIn = async () => {
 
       // 查询签到天数
       const getCheckInDaysRes = await getCheckInDays()
-      console.log(`连续签到【${getCheckInDaysRes.continuousDay}】天  总签到天数【${getCheckInDaysRes.sumCount}】  掘金不停 签到不断💪`)
+      let msg = `连续签到【${getCheckInDaysRes.continuousDay}】天  总签到天数【${getCheckInDaysRes.sumCount}】  掘金不停 签到不断💪`
+      console.log(msg)
+      sendWechat(msg)
 
       // 签到成功 去抽奖
       await draw()
     } else {
       console.log('今日已经签到 ✅')
+      sendWechat('今日已经签到 ✅')
     }
     autoGame()
 
@@ -205,6 +214,35 @@ const sendEmail = async () => {
 
 }
 
+/**
+ * 发送微信通知
+ */
+const sendWechat = async (desp) => {
+  const url = config.push.DING_TALK_TOKEN == '' ? config.push.PUSH_URL : DINGTALK_PUSH_URL;
+  const body = config.push.DING_TALK_TOKEN == '' ? {
+    token: `${config.push.PUSH_PLUS_TOKEN}`,
+    title: `签到结果`,
+    content: `${desp}`
+  } : {
+    msgtype: "text",
+    text: { content: "签到结果: " + desp },
+  };
+
+  let param = {
+    json: body,
+  };
+  if (config.push.DING_TALK_TOKEN != '') {
+    param.hooks = {
+      beforeRequest: [
+        (options) => {
+          Object.assign(options.headers, HEADERS_DINGTALK_WEB_HOOK);
+        },
+      ],
+    }
+  }
+  const res = await axios({ url: url, method: 'post', data: { param } });
+  console.log(res.body);
+}
 
 /**
  * 启动程序  处理日志输出 开始签到流程 将结果通过邮件形式发送
